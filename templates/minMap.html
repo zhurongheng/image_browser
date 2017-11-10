@@ -1,0 +1,15 @@
+<ion-modal-view title="获取位置">
+    <ion-nav-bar class="bar bar-positive">
+        <ion-nav-buttons side="left">
+            <button class="button button-icon icon-left ion-chevron-left" ng-click="BDMap.closeMap()">返回</button>
+        </ion-nav-buttons>
+        <ion-nav-buttons side="right">
+            <button class="button button-icon icon-right ion-checkmark-round" ng-click="BDMap.closeMap()">完成</button>
+        </ion-nav-buttons>
+    </ion-nav-bar>
+    <ion-content scroll="false" class="has-header">
+        <ion-scroll direction="x">
+            <min-map ng-model="BDMap.troubleAddress" close-map="BDMap.closeMap()"></min-map>
+        </ion-scroll>
+    </ion-content>
+</ion-modal-view>

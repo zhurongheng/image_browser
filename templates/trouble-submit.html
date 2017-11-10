@@ -1,0 +1,64 @@
+<ion-view title="问题上报">
+    <ion-nav-bar class="bar-positive">
+        <ion-nav-buttons side="left">
+            <button class="button button-icon icon-left ion-chevron-left">取消</button>
+        </ion-nav-buttons>
+        <ion-nav-buttons side="right">
+            <button class="button button-icon icon-right ion-plus-circled">确认</button>
+        </ion-nav-buttons>
+    </ion-nav-bar>
+    <ion-content class="has-header">
+        <ul class="list">
+            <!--一级-->
+            <li class="item item-input item-select">
+                <label class="input-label h4">问题类型<!--<i class="icon ion-cube positive"></i>--></label>
+                <select ng-model="loader.selectedPatrolIssueGroup"
+                        ng-options="patrolIssueGroup.name for patrolIssueGroup in loader.category"
+                        ng-change="loader.patrolIssueGroupChange(loader.selectedPatrolIssueGroup)"></select>
+            </li>
+            <li class="item item-input item-select">
+                <label class="input-label h4">设施位置<!--<i class="icon ion-disc positive"></i>--></label>
+                <select ng-model="loader.selectedPatrolIssueFacility"
+                        ng-options="patrolIssueFacility.name for patrolIssueFacility in loader.patrolIssueFacilityList"
+                        ng-change="loader.patrolIssueFacilityChange(loader.selectedPatrolIssueFacility)"></select>
+            </li>
+            <li class="item item-input item-select" ng-if="loader.showPatrolIssueMaterial">
+                <label class="input-label h4">设施材质<!--<i class="icon ion-pinpoint positive"></i>--></label>
+                <select ng-model="loader.selectedPatrolIssueMaterial"
+                        ng-options="patrolIssueMaterial.name for patrolIssueMaterial in loader.patrolIssueMaterialList"
+                        ng-change="loader.patrolIssueMaterialChange(loader.selectedPatrolIssueMaterial)"></select>
+            </li>
+            <li class="item item-input item-select">
+                <label class="input-label h4">病害种类<!--<i class="icon ion-bug positive"></i>--></label>
+                <select ng-model="loader.selectedPatrolIssueType"
+                        ng-options="patrolIssueType.name for patrolIssueType in loader.patrolIssueTypeList"
+                        ng-change="loader.patrolIssueTypeChange(loader.selectedPatrolIssueType)"></select>
+            </li>
+            <li class="item item-input">
+                <label class="input-label h4">病害描述<!--<i class="icon ion-compose positive"></i>--></label>
+                <input type="text" placeholder="请输入问题描述" ng-model="troubleDesc" ng-maxlength="30"/>
+            </li>
+            <li class="item item-input">
+                <label class="input-label h4">发生地址<!--<i class="icon ion-location positive"></i>--></label>
+                <button class="button button-icon icon-right ion-location calm" ng-click="BDMap.showMap()"></button>
+                <input type="text" ng-maxlength="30" ng-model="BDMap.troubleAddress" placeholder="点击右侧图标获取位置信息"/>
+            </li>
+            <li class="item item-borderless">
+                <label class="badge badge-assertive">4</label>
+                <ion-scroll image-scroll scrollbar-y="true" scroll-x="false" direction="y">
+                    <div class="row">
+                        <div class="col"><img class="auto-width" src="img/me.jpg" on-hold="upload.showActions($event)"/></div>
+                        <div class="col"><img class="auto-width" src="img/me.jpg" /></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><img class="auto-width" src="img/me.jpg" /></div>
+                        <div class="col"><img class="auto-width" src="img/me.jpg" /></div>
+                    </div>
+                </ion-scroll>
+            </li>
+            <li class="item item-borderless">
+                <button class="button button-block button-positive">上传图片</button>
+            </li>
+        </ul>
+    </ion-content>
+</ion-view>

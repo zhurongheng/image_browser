@@ -1,0 +1,22 @@
+<ion-view title="配套中心">
+	<ion-nav-bar class="bar-positive"></ion-nav-bar>
+	<ion-content class="has-header">
+		<ul class="list list-inset">
+			<li class="item item-icon-left" ng-click="troubleNew()">
+				<i class="icon ion-plus-circled positive"></i>
+				<label class="h4">
+					问题上报
+				</label>
+			</li>
+			<li class="item item-icon-left" ng-click="troubleHistory()">
+				<i class="icon ion-navicon-round positive"></i>
+				<label class="h4">上报历史</label>
+			</li>
+			<li class="item item-input item-select">
+				<label class="input-label h4">选项</label>
+				<select ng-model="selectedItem" ng-options="item.name for item in itemList" ng-change="itemChange(selectedItem)"></select>
+			</li>
+			<li class="item">{{selectedItem.name||'请选择'}}</li>
+		</ul>
+	</ion-content>
+</ion-view>

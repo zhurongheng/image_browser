@@ -1,0 +1,32 @@
+<ion-view ng-controller="registerCtrl">
+    <ion-header-bar class="bar bar-positive">
+        <div class="buttons">
+            <button class="button button-clear icon ion-android-arrow-back" ></button>
+        </div>
+        <h1 class="title">用户注册</h1>
+    </ion-header-bar>
+	<ion-content>
+        <ul class="list">
+           <li class="item item-input item-input-inset">
+               <i class="icon ion-iphone"></i>
+               <input type="text" placeholder="手机号" ng-model="user.loginname">
+           </li>
+            <li class="item item-button-right item-borderless item-input-inset">
+                <input type="text" placeholder="验证码" ng-model="user.regCode">
+                <button class="button button-large button-positive" ng-click="getCode()">
+                    获取验证码</button>
+            </li>
+            <li class="item item-input item-input-inset">
+                <i class="icon ion-locked"></i>
+                <input type="password" placeholder="密码" ng-model="user.loginpassword">
+            </li>
+            <li class="item item-button-right item-borderless">
+                <i>&nbsp;</i>
+                <button class="button button-balanced" ng-click="go('login')">直接登录</button>
+            </li>
+        </ul>
+	</ion-content>
+    <ion-footer-bar class="bar bar-positive">
+        <button class="button  button-full button-clear" ng-click="userRegister()">下一步</button>
+    </ion-footer-bar>
+</ion-view>
