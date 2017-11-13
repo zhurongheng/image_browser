@@ -9,7 +9,7 @@
     </ion-nav-bar>
     <ion-content scroll="false" class="has-header">
         <ion-scroll direction="x">
-            <min-map ng-model="BDMap.troubleAddress" close-map="BDMap.closeMap()"></min-map>
+            <min-map ng-model="BDMap.troubleAddress" close-map="BDMap.closeMap()" map-ready="BDMap.mapReady()"></min-map>
         </ion-scroll>
     </ion-content>
 </ion-modal-view>

@@ -39,25 +39,22 @@
                 <input type="text" placeholder="请输入问题描述" ng-model="troubleDesc" ng-maxlength="30"/>
             </li>
             <li class="item item-input">
-                <label class="input-label h4">发生地址<!--<i class="icon ion-location positive"></i>--></label>
+                <label class="input-label h4">发生地址</label>
                 <button class="button button-icon icon-right ion-location calm" ng-click="BDMap.showMap()"></button>
-                <input type="text" ng-maxlength="30" ng-model="BDMap.troubleAddress" placeholder="点击右侧图标获取位置信息"/>
+            </li>
+            <li class="item item-text-wrap item-borderless" ng-if="BDMap.troubleAddress&&BDMap.troubleAddress.length>0"
+                style="color: crimson">
+                {{BDMap.troubleAddress}}
+            </li>
+            <li class="item item-input">
+                <label class="input-label h4">地址补充<!--<i class="icon ion-location positive"></i>--></label>
+                <input type="text" ng-maxlength="30" ng-model="BDMap.troubleAddressExtra" placeholder="补充信息"/>
             </li>
             <li class="item item-borderless">
-                <label class="badge badge-assertive">4</label>
-                <ion-scroll image-scroll scrollbar-y="true" scroll-x="false" direction="y">
-                    <div class="row">
-                        <div class="col"><img class="auto-width" src="img/me.jpg" on-hold="upload.showActions($event)"/></div>
-                        <div class="col"><img class="auto-width" src="img/me.jpg" /></div>
-                    </div>
-                    <div class="row">
-                        <div class="col"><img class="auto-width" src="img/me.jpg" /></div>
-                        <div class="col"><img class="auto-width" src="img/me.jpg" /></div>
-                    </div>
-                </ion-scroll>
+
             </li>
             <li class="item item-borderless">
-                <button class="button button-block button-positive">上传图片</button>
+                <button class="button button-full button-positive">上传图片</button>
             </li>
         </ul>
     </ion-content>

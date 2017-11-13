@@ -36,7 +36,7 @@ angular.module('myApp.controllers', [])
     /**
      * *********************************************上报控制器**********************************************************
      */
-    .controller('troubleSubmitCtrl', ['$scope', '$state', 'PTZXFace', '$window','$ionicActionSheet','$ionicModal', function ($scope, $state, PTZXFace, $window,$ionicActionSheet,$ionicModal) {
+    .controller('troubleSubmitCtrl', ['$scope', '$state', 'PTZXFace', '$window', '$ionicActionSheet', '$ionicModal', '$ionicLoading', function ($scope, $state, PTZXFace, $window, $ionicActionSheet, $ionicModal, $ionicLoading) {
         /**
          *下拉框部分
          */
@@ -147,48 +147,49 @@ angular.module('myApp.controllers', [])
          * ***********以下开始为图片上传部分***********
          */
         $scope.upload = {};
-        $scope.upload.items = [
-            {
-                index: 0,
-                src: ''
+        $scope.upload.imageTable = {};
+        $scope.upload.imageTable.imageRows = [];
+        $scope.upload.remove = function (imageCol) {
+            try {
+                if (imageCol.rowIndex >= 0 && imageCol.rowIndex < $scope.upload.imageTable.imageRows.length) {
+                    if (imageCol.index >= 0 && imageCol.index < $scope.upload.imageTable.imageRows[imageCol.rowIndex]) {
+                        $scope.upload.imageTable.imageRows[imageCol.rowIndex].remove(imageCol.index);
+                    }
+                }
+            } catch (e) {
+                $window.alert(e.message || e);
             }
-        ];
-        $scope.upload.remove = function (item) {
-                if(item&&item.index&&item.index<$scope.upload.items){
-                    $scope.upload.items.remove(item.index);
-                }
         }
-        $scope.upload.showActions=function ($event) {
-            console.log($event.target);
-            $ionicActionSheet.show({
-                buttons: [
-                    { text: '移除' },
-                ],
-               /* destructiveText: 'Delete',*/
-                titleText: '请选择操作',
-                cancelText: '取消',
-                buttonClicked: function(index) {
-                    return true;
-                }
-            });
+        $scope.upload.doUpload = function () {
+
+        }
+        $scope.upload.showActions = function ($event) {
+
         }
         /**
          * ***********以下开始获取位置信息***********
          */
-        $scope.BDMap={};
-        $scope.BDMap.troubleAddress='';
-        $scope.BDMap.showMap=function(){
-            $ionicModal.fromTemplateUrl('templates/minMap.html',{
-                scope:$scope
-            }).then(function(modal){
-                $scope.BDMap.modal=modal;
+        $scope.BDMap = {};
+        $scope.BDMap.troubleAddress = '';
+        $scope.BDMap.troubleAddressExtra = '';
+        $scope.BDMap.showMap = function () {
+            $ionicModal.fromTemplateUrl('templates/minMap.html', {
+                scope: $scope
+            }).then(function (modal) {
+                $scope.BDMap.modal = modal;
                 modal.show();
-            },function (e) {
-                console.log(e.message||e);
+                $ionicLoading.show({
+                    template: '正在获取位置信息...'
+                });
+            }, function (e) {
+                $window.alert(e.message || e);
             })
         }
-        $scope.BDMap.closeMap=function(){
-            if($scope.BDMap.modal){
+        $scope.BDMap.mapReady = function () {
+            $ionicLoading.hide();
+        }
+        $scope.BDMap.closeMap = function () {
+            if ($scope.BDMap.modal) {
                 $scope.BDMap.modal.hide();
                 $scope.BDMap.modal.remove();
             }
