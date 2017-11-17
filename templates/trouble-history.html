@@ -1,15 +1,14 @@
-<ion-view>
-    <ion-header-bar class="bar bar-positive">
-        <div class="buttons">
-            <button class="button button-clear icon ion-android-arrow-back" ></button>
-        </div>
-        <h1 class="title">历史作业</h1>
-    </ion-header-bar>
-	<ion-content>
+<ion-view title="上报历史">
+    <ion-content>
         <ul class="list">
-            <li class="item item-button-right">
-              111111
+            <li class="item item-thumbnail-left item-icon-right">
+                <img src="/patrol/files/A1510832115224D369246389A958498205610DB01E75C2_weixinmedia.jpg">
+                <label class="h4 calm">2017111715372416</label>
+                <p>人行道/人行道残障/待立案</p>
+                <label ng-click="historyLogic.showDetails(problem)">
+                    <i class="icon ion-ios-search-strong positive"></i>
+                </label>
             </li>
         </ul>
-	</ion-content>
+    </ion-content>
 </ion-view>

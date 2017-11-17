@@ -14,7 +14,8 @@ angular.module('myApp')
         return {
             restrict: 'AE',
             link: function (scope, element, attr, ctrl) {
-                element[0].style.height = (window.innerHeight - 408) + 'px';
+                element[0].style.height ='160px';
+                element[0].style.width = (window.innerWidth - 32) + 'px';
             }
         };
     })
@@ -27,6 +28,7 @@ angular.module('myApp')
             require: 'ngModel',
             scope: {
                 ngModel: '=',
+                location:'=',
                 mapReady: '&',
                 closeMap: '&'
             },
@@ -44,9 +46,9 @@ angular.module('myApp')
                         });
                     },
                     result: function (info) {
-                        console.log(info);
                         scope.$apply(function () {
-                            scope.ngModel = info;
+                            scope.ngModel = info.address;
+                            scope.location =info.location;
                         })
                     },
                     closeMap: function () {
@@ -82,20 +84,20 @@ angular.module('myApp')
                     },
                     getImageComplete: function (localIds) {
                         if (localIds && localIds.length > 0) {
-                            $scope.$apply(function () {
+                            scope.$apply(function () {
                                 scope.currentImage = localIds[0];
                             });
-                            $scope.$apply(function () {
+                            scope.$apply(function () {
                                 scope.getImageComplete();
                             });
                         }
                     },
                     uploadImageComplete: function (serverId) {
                         if (serverId) {
-                            $scope.$apply(function () {
+                            scope.$apply(function () {
                                 scope.uploadImage = serverId;
                             });
-                            $scope.$apply(function () {
+                            scope.$apply(function () {
                                 scope.uploadImageComplete();
                             });
                         }
@@ -103,6 +105,11 @@ angular.module('myApp')
                     //接下来处理，图片移除
                 }
                 $(element).imageUpload().build(options);
+                //接下来，监听图片选择和上传
+                scope.$on('getImage',function (e) {
+                    console.log(e);
+                    instance.getImage();
+                })
             }
         };
     });

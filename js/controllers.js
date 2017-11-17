@@ -14,33 +14,36 @@ angular.module('myApp.controllers', [])
     /**
      * ******************************************首页控制器*************************************************************
      */
-    .controller('homeCtrl', ['$scope', '$state', 'PTZXFace', function ($scope, $state, PTZXFace) {
+    .controller('homeCtrl', ['$scope', '$state', 'PTZXFace', '$stateParams', '$location', '$window', function ($scope, $state, PTZXFace, $stateParams, $location, $window) {
+        if ($location && $location.search().openid) {
+            localStorage.setItem('openid', $location.search().openid);
+        }
+        if ($location && $location.search().userid) {
+            localStorage.setItem('userid', $location.search().userid);
+        }
+        if ($location && $location.search().logname) {
+            localStorage.setItem('logname', $location.search().logname);
+        }
         $scope.troubleNew = function () {
             $state.go('trouble-submit');
         }
         $scope.troubleHistory = function () {
-
+            $state.go('trouble-history');
         }
-        $scope.selectedItem = {};
-        $scope.itemList = [
-            {id: 0, name: '零'},
-            {id: 1, name: '一'},
-            {id: 2, name: '三'}
-        ];
-        $scope.selectedItem = $scope.itemList[0];
-        /*$scope.itemChange=function(item){
-            console.log('item change:');
-            console.log(item);
-        }*/
+
     }])
     /**
      * *********************************************上报控制器**********************************************************
      */
-    .controller('troubleSubmitCtrl', ['$scope', '$state', 'PTZXFace', '$window', '$ionicActionSheet', '$ionicModal', '$ionicLoading', function ($scope, $state, PTZXFace, $window, $ionicActionSheet, $ionicModal, $ionicLoading) {
+    .controller('troubleSubmitCtrl', ['$scope', '$state', 'PTZXFace', 'utils', '$window', function ($scope, $state, PTZXFace, utils, $window) {
+
+
         /**
          *下拉框部分
          */
         $scope.loader = {};
+        $scope.troubleLogic = {};
+        $scope.loader.preparedId = '';
         $scope.loader.category = [];
         $scope.loader.patrolIssueFacilityList = [];
         $scope.loader.patrolIssueTypeList = [];
@@ -50,6 +53,7 @@ angular.module('myApp.controllers', [])
         $scope.loader.selectedPatrolIssueType = {};
         $scope.loader.selectedPatrolIssueMaterial = {};
         $scope.loader.showPatrolIssueMaterial = false;
+        $scope.loader.troubleDesc = '';
         /**
          * 初始化一级
          */
@@ -142,43 +146,155 @@ angular.module('myApp.controllers', [])
             console.log(patrolIssueType);
         }
         //初始化数据
-        $scope.loader.refresh();
+        PTZXFace.randomGUID().then(function (randomGUID) {
+            $scope.loader.preparedId = randomGUID;
+            console.log('preparedId:' + $scope.loader.preparedId);
+            $scope.loader.refresh();
+        }, function (e) {
+            $window.alert('获取随机串失败:' + e);
+        });
         /**
          * ***********以下开始为图片上传部分***********
          */
         $scope.upload = {};
-        $scope.upload.imageTable = {};
-        $scope.upload.imageTable.imageRows = [];
-        $scope.upload.remove = function (imageCol) {
+        $scope.upload.imageItems = [];
+        $scope.upload.currentImage = '';
+        $scope.upload.uploadMediaId = '';
+        $scope.upload.uploadCount = 0;
+        $scope.upload.remove = function (item) {
             try {
-                if (imageCol.rowIndex >= 0 && imageCol.rowIndex < $scope.upload.imageTable.imageRows.length) {
-                    if (imageCol.index >= 0 && imageCol.index < $scope.upload.imageTable.imageRows[imageCol.rowIndex]) {
-                        $scope.upload.imageTable.imageRows[imageCol.rowIndex].remove(imageCol.index);
-                    }
+                if (item && item.index && inten.index >= 0 && item.index < $scope.upload.imageItems.length) {
+                    $scope.upload.imageItems.remove(item.index);
                 }
             } catch (e) {
                 $window.alert(e.message || e);
             }
         }
-        $scope.upload.doUpload = function () {
+        /**
+         * 添加图片
+         * @param item
+         */
+        $scope.upload.addImage = function (item) {
+            try {
+                $scope.upload.imageItems.push(item);
+                alert($scope.upload.imageItems.length);
+            } catch (e) {
+                $window.alert(e.name + ':' + e.message);
+            }
+        }
+        /**
+         * 从微信获取图片
+         */
+        $scope.upload.getImage = function () {
+            if ($scope.upload.uploadCount < 5) {
+                $scope.$broadcast('getImage');
+            } else {
+                $window.alert('最对只能上传5张图片.');
+            }
 
         }
-        $scope.upload.showActions = function ($event) {
-
+        /**
+         * 从微信获取图片完毕
+         */
+        $scope.upload.getImageComplete = function () {
+            $scope.upload.uploadCount++;
+            utils.$ionicLoading.show({
+                template: '正在上传,请稍后...'
+            });
+        }
+        /**
+         * 图片上传到微信服务器完毕，等待下载
+         */
+        $scope.upload.uploadImageComplete = function () {
+            utils.$ionicLoading.hide();
+            //下载完成
+            PTZXFace.downloadMedia($scope.loader.preparedId, $scope.upload.uploadMediaId).then(function (media) {
+                var item = {
+                    index: $scope.upload.imageItems.length > 0 ? $scope.upload.imageItems.length - 1 : 0,
+                    id: media.attachId,
+                    url: media.url
+                };
+                $window.alert('图片:' + item.url);
+                $scope.upload.addImage(item);
+            }, function (e) {
+                $window.alert(e);
+            })
+        }
+        /**
+         * 检查数据
+         */
+        $scope.troubleLogic.checkData = function (params) {
+            if (!params.lng || !params.lat || !params.location) {
+                $window.alert('请先获取当前位置.');
+                return false;
+            }
+            if (!params.issueDesc) {
+                $window.alert('请输入病害信息.');
+                return false;
+            }
+            return true;
+        }
+        /**
+         *上报
+         */
+        $scope.troubleLogic.finish = function () {
+            var point = $scope.BDMap.troubleLocation.split(',');
+            var lng = '';
+            var lat = '';
+            if (point.length == 2) {
+                lng = point[0];
+                lat = point[1];
+            }
+            var logname = localStorage.getItem('logname') || '';
+            var userid = localStorage.getItem('userid') || '';
+            var params = {
+                reporter: logname,
+                lng: lng,
+                lat: lat,
+                location: $scope.BDMap.troubleAddress,
+                reportTime: utils.formatDate(new Date()),
+                reporterId: userid,
+                issueDesc: $scope.loader.troubleDesc,
+                id: $scope.preparedId,
+                remark: $scope.loader.selectedPatrolIssueFacility.name,
+                issueType: $scope.loader.selectedPatrolIssueType.name,
+                issueStatus: 'PRB_STA_01',
+                type2: 'PRB_TYPE_4',
+                issueTypeSub: $scope.loader.selectedPatrolIssueMaterial.name
+            }
+            $window.alert(params.reporter + '-' + params.reportTime);
+            if (!$scope.troubleLogic.checkData(params)) {
+                return;
+            }
+            utils.$ionicLoading.show({
+                template: '正在处理,请稍后...'
+            });
+            PTZXFace.patrolIssueAdd(params).then(function (patrolIssue) {
+                console.log(patrolIssue);
+                var timeout = utils.$timeout(function () {
+                    utils.$ionicLoading.hide();
+                    $state.go('home');
+                }, 1000).then(function () {
+                    utils.$timeout.cancel(timeout);
+                });
+            }, function (e) {
+                $window.alert(e);
+            });
         }
         /**
          * ***********以下开始获取位置信息***********
          */
         $scope.BDMap = {};
+        $scope.BDMap.troubleLocation = '';
         $scope.BDMap.troubleAddress = '';
         $scope.BDMap.troubleAddressExtra = '';
         $scope.BDMap.showMap = function () {
-            $ionicModal.fromTemplateUrl('templates/minMap.html', {
+            utils.$ionicModal.fromTemplateUrl('templates/minMap.html', {
                 scope: $scope
             }).then(function (modal) {
                 $scope.BDMap.modal = modal;
                 modal.show();
-                $ionicLoading.show({
+                utils.$ionicLoading.show({
                     template: '正在获取位置信息...'
                 });
             }, function (e) {
@@ -186,7 +302,7 @@ angular.module('myApp.controllers', [])
             })
         }
         $scope.BDMap.mapReady = function () {
-            $ionicLoading.hide();
+            utils.$ionicLoading.hide();
         }
         $scope.BDMap.closeMap = function () {
             if ($scope.BDMap.modal) {
@@ -199,5 +315,65 @@ angular.module('myApp.controllers', [])
      * *********************************************上报历史控制器*****************************************************
      */
     .controller('troubleHistoryCtrl', ['$scope', '$state', 'PTZXFace', function ($scope, $state, PTZXFace) {
+        $scope.historyLogic = {};
+        $scope.historyLogic.troubleList = [];
+        /**
+         * 查看详细信息
+         * @param trouble
+         */
+        $scope.historyLogic.showDetails = function (trouble) {
+            $state.go('trouble', {trouble: trouble});
+        }
+        /**
+         * 初始化页面
+         */
+        $scope.historyLogic.init = function () {
 
+        }
+    }])
+    /**
+     * ********************************************************上报详情****************************************
+     */
+    .controller('troubleCtrl', ['$scope', '$state', 'PTZXFace', 'utils', '$stateParams', '$window', function ($scope, $state, PTZXFace, utils, $stateParams, $window) {
+        $scope.troubleLogic = {};
+        $scope.troubleLogic.init = function () {
+            //获取参数
+            $scope.trouble = $stateParams.trouble;
+            //如果获取不到参数，返回列表页
+            try {
+                if (!$scope.trouble) {
+                    var currenttrouble = JSON.parse(localStorage.getItem('currenttrouble'));
+                    if (currenttrouble) {
+                        $scope.trouble = currenttrouble;
+                    } else {
+                        $state.go('trouble-history');
+                    }
+                }
+            } catch (e) {
+                $window.alert(e.name + ':' + e.message);
+                return;
+            }
+        }
+        //返回列表
+        $scope.troubleLogic.goBack = function () {
+            utils.$ionicHistory.goBack();
+        }
+        /**
+         * 显示工作流
+         */
+        $scope.troubleLogic.showWorkFlow = function () {
+            utils.$ionicModal.fromTemplateUrl('templates/troubleFlow.html', {scope: $scope}).then(function (modal) {
+                $scope.modal = modal;
+                modal.show();
+            }, function (e) {
+                $window.alert(e.name + ':' + e.message);
+            });
+        }
+        /**
+         * 关闭工作流页面
+         */
+        $scope.troubleLogic.closeWorkFlow = function () {
+            $scope.modal.hide();
+            $scope.modal.remove();
+        }
     }]);

@@ -44,6 +44,12 @@ angular.module('myApp', ['ionic', 'myApp.controllers', 'myApp.services'])
                 cache: false,
                 templateUrl: "templates/trouble-history.html",
                 controller: 'troubleHistoryCtrl'
+        }).state('trouble', {
+            url: '/trouble',
+            data:{trouble:null},
+            cache: false,
+            templateUrl: "templates/trouble.html",
+            controller: 'troubleCtrl'
         }).state('test', {
             url: '/test',
             cache: false,

@@ -12,11 +12,6 @@
 				<i class="icon ion-navicon-round positive"></i>
 				<label class="h4">上报历史</label>
 			</li>
-			<li class="item item-input item-select">
-				<label class="input-label h4">选项</label>
-				<select ng-model="selectedItem" ng-options="item.name for item in itemList" ng-change="itemChange(selectedItem)"></select>
-			</li>
-			<li class="item">{{selectedItem.name||'请选择'}}</li>
 		</ul>
 	</ion-content>
 </ion-view>

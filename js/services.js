@@ -107,6 +107,134 @@ angular.module('myApp.services', [])
                     }
                 });
                 return defer.promise;
+            },
+            /**
+             * 下载微信图片
+             * @param mstId
+             * @param mediaId
+             * @returns {promise|d|*}
+             */
+            downloadMedia: function (mstId, mediaId) {
+                var defer = $q.defer();
+                var server = $http({
+                    url: '/patrol/wx/serve.xview?doType=222&categoryId=ATT_APP_patrol_ATTACH',
+                    method: 'GET',
+                    params: {mstId: mstId, mediaId: mediaId}
+                });
+                server.success(function (data) {
+                    if (data.status = 'Y') {
+                        defer.resolve(data.media);
+                    } else {
+                        defer.reject(data.msg);
+                    }
+                });
+                server.error(function (e) {
+                    if (e && e.message) {
+                        defer.reject(e.message);
+                    } else {
+                        defer.reject('请求错误!');
+                    }
+                });
+                return defer.promise;
+            },
+            /**
+             * 提交上报
+             * @param params
+             * Reporter   上传者名称
+             *Lng  经度
+             *Lat  纬度
+             *Location  位置
+             *type2   使用默认值  PRB_TYPE_1
+             *reportTime 上传时间
+             *issueDesc  问题描述
+             *id     一个随机不重复码 取UUID值
+             *remark  设施位置
+             *issueType   种类
+             *issueStatus  使用默认值  PRB_STA_01
+             *issueTypeSub  材质
+             * @returns {promise|d|*}
+             */
+            patrolIssueAdd: function (params) {
+                var defer = $q.defer();
+                var server = $http({
+                    url: '/patrol/patrol-ajax/json/patrolIssueAdd.xview?doType=1&parentId=&seq=10000',
+                    method: 'GET',
+                    params: params
+                });
+                server.success(function (data) {
+                    if (data.status = 'Y') {
+                        defer.resolve(data.patrolIssue);
+                    } else {
+                        defer.reject(data.msg);
+                    }
+                });
+                server.error(function (e) {
+                    if (e && e.message) {
+                        defer.reject(e.message);
+                    } else {
+                        defer.reject('请求错误!');
+                    }
+                });
+                return defer.promise;
+            },
+            /**
+             * 获取一个随机串
+             * @returns {promise|d|*}
+             */
+            randomGUID: function () {
+                var defer = $q.defer();
+                var server = $http({
+                    url: '/patrol/wx/serve.xview?doType=999',
+                    method: 'GET',
+                    params: null
+                });
+                server.success(function (data) {
+                    if (data.status = 'Y') {
+                        defer.resolve(data.randomGUID);
+                    } else {
+                        defer.reject(data.msg);
+                    }
+                });
+                server.error(function (e) {
+                    if (e && e.message) {
+                        defer.reject(e.message);
+                    } else {
+                        defer.reject('请求错误!');
+                    }
+                });
+                return defer.promise;
+            },
+            /**
+             * 用户登录
+             * @returns {promise|d|*}
+             */
+            userValidate: function (logName, password) {
+                var defer = $q.defer();
+                var server = $http({
+                    url: '/cas/userValidate.jsp',
+                    method: 'GET',
+                    params: {logName: logName, password: password}
+                });
+                server.success(function (data) {
+                    if (data.status = 'Y') {
+                        try {
+                            var account = JSON.parse(data.account);
+                            defer.resolve(account);
+                        } catch (e) {
+                            defer.reject('解析数据失败:' + e.name + ',' + e.message);
+                        }
+                    } else {
+                        defer.reject(data.msg);
+                    }
+                });
+                server.error(function (e) {
+                    if (e && e.message) {
+                        defer.reject(e.message);
+                    } else {
+                        defer.reject('请求错误!');
+                    }
+                });
+                return defer.promise;
             }
         };
         /**
@@ -269,4 +397,26 @@ angular.module('myApp.services', [])
             return defer.promise;
         }
         return PTZXFace;
-    }]);
+    }]).factory('utils', ['$ionicModal', '$ionicLoading', '$timeout','$ionicHistory', function ($ionicModal, $ionicLoading, $timeout,$ionicHistory) {
+    return {
+        $ionicLoading: $ionicLoading,
+        $ionicModal: $ionicModal,
+        $timeout: $timeout,
+        $ionicHistory:$ionicHistory,
+        formatDate: function (date, format) {
+            try {
+                format = format || 'yyyy-MM-dd';
+                format = format.replace('yyyy', date.getFullYear());
+                format = format.replace('MM', this.fillZero(date.getMonth() + 1));
+                format = format.replace('dd', this.fillZero(date.getDate()));
+                format = format.replace('HH', this.fillZero(date.getHours()));
+                format = format.replace('mm', this.fillZero(date.getMinutes()));
+                format = format.replace('ss', this.fillZero(date.getSeconds()));
+                return format;
+            } catch (e) {
+                return '';
+                console.log(e);
+            }
+        }
+    };
+}]);
